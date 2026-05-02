@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
+    "build": "echo \"no-op build\"",
     "seed": "node scripts/seedDemoProfiles.js"
   },
   "dependencies": {
