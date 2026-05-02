@@ -17,7 +17,7 @@ jobs:
 
     services:
       mongodb:
-        image: mongo:7-alpine
+        image: mongo:7
         options: >-
           --health-cmd mongosh
           --health-interval 10s
