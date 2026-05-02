@@ -14,14 +14,21 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 const clientOriginRaw = process.env.CLIENT_URL || "http://localhost:5173";
-const clientOrigins = clientOriginRaw.split(',').map(origin => {
-  const trimmed = origin.trim();
-  return trimmed.startsWith("http") ? trimmed : `https://${trimmed}`;
-});
+const clientOrigins = clientOriginRaw
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean)
+  .map((origin) => (origin.startsWith("http") ? origin : `https://${origin}`));
 
 app.use(
   cors({
-    origin: clientOrigins,
+    origin: (origin, callback) => {
+      // Allow non-browser/tool requests and configured origins.
+      if (!origin || clientOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
+        return callback(null, true);
+      }
+      return callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
   }),
 );
