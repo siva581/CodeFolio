@@ -11,17 +11,17 @@ import paymentRoutes from "./routes/paymentRoutes.js";
 dotenv.config();
 
 const app = express();
-const port = 5000;
-if (process.env.PORT && String(process.env.PORT) !== String(port)) {
-  console.warn(`Overriding PORT ${process.env.PORT} to ${port} for local dev`);
-}
+const port = process.env.PORT || 5000;
 
 const clientOriginRaw = process.env.CLIENT_URL || "http://localhost:5173";
-const clientOrigin = clientOriginRaw.startsWith("http") ? clientOriginRaw : `https://${clientOriginRaw}`;
+const clientOrigins = clientOriginRaw.split(',').map(origin => {
+  const trimmed = origin.trim();
+  return trimmed.startsWith("http") ? trimmed : `https://${trimmed}`;
+});
 
 app.use(
   cors({
-    origin: clientOrigin,
+    origin: clientOrigins,
     credentials: true,
   }),
 );

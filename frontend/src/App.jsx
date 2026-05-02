@@ -21,8 +21,10 @@ function LandingRoute() {
 
   const hostname = window.location.hostname;
   const isLocalHost = hostname === "localhost" || hostname === "127.0.0.1" || hostname.endsWith(".localhost");
+  const isVercel = hostname.includes("vercel.app") || hostname.includes("vercel.com");
 
-  return isLocalHost ? <HomePage /> : <PublicPortfolioPage />;
+  // Show HomePage for localhost and Vercel deployments, PublicPortfolioPage for custom domains
+  return (isLocalHost || isVercel) ? <HomePage /> : <PublicPortfolioPage />;
 }
 
 export default function App() {
