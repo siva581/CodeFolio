@@ -117,15 +117,8 @@ const sendViaNodemailer = async (recipientEmail, senderName, senderEmail, messag
     return { sent: false, reason: "Nodemailer not configured" };
   }
 
-  
-  try {
-    await smtp.verify();
-  } catch (err) {
-    console.error("SMTP verification failed:", err && err.message ? err.message : err);
-    return { sent: false, reason: `SMTP verification failed: ${err && err.message ? err.message : String(err)}` };
-  }
-
-  await smtp.sendMail({
+  // Fire-and-forget: send email asynchronously without blocking response
+  smtp.sendMail({
     from: process.env.FROM_EMAIL || "sivaprakash36893@gmail.com",
     to: recipientEmail,
     replyTo: senderEmail,
@@ -139,9 +132,9 @@ const sendViaNodemailer = async (recipientEmail, senderName, senderEmail, messag
       <hr />
       <p><small>This email was sent via CodeFolio. Reply directly to this email to respond.</small></p>
     `,
-  });
+  }).catch(err => console.error("Nodemailer send error:", err.message));
 
-  console.log(`Email sent to ${recipientEmail} via Nodemailer`);
+  console.log(`Email queued for delivery to ${recipientEmail} via Nodemailer`);
   return { sent: true, provider: "nodemailer" };
 };
 
