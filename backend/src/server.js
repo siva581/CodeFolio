@@ -7,8 +7,6 @@ import authRoutes from "./routes/authRoutes.js";
 import contactRoutes from "./routes/contactRoutes.js";
 import portfolioRoutes from "./routes/portfolioRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
-import vanityRoutes from "./routes/vanityRoutes.js";
-import path from "path";
 
 dotenv.config();
 
@@ -34,16 +32,6 @@ app.use("/api/auth", authRoutes);
 app.use("/api/portfolio", portfolioRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/payment", paymentRoutes);
-
-
-const frontendDist = path.join(process.cwd(), "frontend", "dist");
-app.use(express.static(frontendDist));
-
-app.use("/", vanityRoutes);
-
-app.get("*", (_req, res) => {
-  res.sendFile(path.join(frontendDist, "index.html"));
-});
 
 app.use(notFound);
 app.use(errorHandler);
