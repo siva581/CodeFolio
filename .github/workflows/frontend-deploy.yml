@@ -1,4 +1,4 @@
-name: Build and Deploy Frontend
+name: Frontend CI
 
 on:
   push:
@@ -41,39 +41,3 @@ jobs:
         with:
           name: frontend-build
           path: frontend/dist
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: frontend-build
-          path: frontend/dist
-
-      - name: Deploy to Vercel
-        run: |
-          echo "Option 1: Deploy to Vercel"
-          echo "Install Vercel CLI: npm i -g vercel"
-          echo "Run: vercel --prod --token \${{ secrets.VERCEL_TOKEN }}"
-
-      - name: Deploy to Netlify
-        run: |
-          echo "Option 2: Deploy to Netlify"
-          echo "Install Netlify CLI: npm i -g netlify-cli"
-          echo "Run: netlify deploy --prod --auth \${{ secrets.NETLIFY_AUTH_TOKEN }} --site \${{ secrets.NETLIFY_SITE_ID }}"
-
-      - name: Docker build and push
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./Dockerfile.frontend
-          push: true
-          tags: |
-            ${{ secrets.DOCKER_USERNAME }}/codefolio-frontend:latest
-            ${{ secrets.DOCKER_USERNAME }}/codefolio-frontend:${{ github.sha }}
