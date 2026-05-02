@@ -16,9 +16,12 @@ if (process.env.PORT && String(process.env.PORT) !== String(port)) {
   console.warn(`Overriding PORT ${process.env.PORT} to ${port} for local dev`);
 }
 
+const clientOriginRaw = process.env.CLIENT_URL || "http://localhost:5173";
+const clientOrigin = clientOriginRaw.startsWith("http") ? clientOriginRaw : `https://${clientOriginRaw}`;
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: clientOrigin,
     credentials: true,
   }),
 );
