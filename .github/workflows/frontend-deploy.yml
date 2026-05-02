@@ -1,0 +1,79 @@
+name: Build and Deploy Frontend
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "frontend/**"
+      - "package.json"
+      - "Dockerfile.frontend"
+      - ".github/workflows/frontend-deploy.yml"
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm install --workspaces
+
+      - name: Run linter
+        run: npm run lint --prefix frontend || true
+
+      - name: Build frontend
+        run: npm run build --prefix frontend
+        env:
+          VITE_API_URL: https://api.codefolio.com
+          VITE_APP_NAME: CodeFolio
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: frontend/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-build
+          path: frontend/dist
+
+      - name: Deploy to Vercel
+        run: |
+          echo "Option 1: Deploy to Vercel"
+          echo "Install Vercel CLI: npm i -g vercel"
+          echo "Run: vercel --prod --token \${{ secrets.VERCEL_TOKEN }}"
+
+      - name: Deploy to Netlify
+        run: |
+          echo "Option 2: Deploy to Netlify"
+          echo "Install Netlify CLI: npm i -g netlify-cli"
+          echo "Run: netlify deploy --prod --auth \${{ secrets.NETLIFY_AUTH_TOKEN }} --site \${{ secrets.NETLIFY_SITE_ID }}"
+
+      - name: Docker build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.frontend
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/codefolio-frontend:latest
+            ${{ secrets.DOCKER_USERNAME }}/codefolio-frontend:${{ github.sha }}
